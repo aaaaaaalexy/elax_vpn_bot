@@ -8,7 +8,9 @@ from bot.misc.messages import main_message
 async def callback_home(callback: types.CallbackQuery) -> None:
     user = await rq.get_user(tg_id=callback.from_user.id)
     await callback.message.edit_text(main_message(user=user),
-                                     reply_markup=main_keyboard)
+                                     reply_markup=main_keyboard,
+                                     link_preview_options=types.LinkPreviewOptions(is_disabled=True,
+                                                                                   show_above_text=False))
     await callback.answer()
 
 

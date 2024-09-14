@@ -1,5 +1,4 @@
 import asyncio
-import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
@@ -40,9 +39,7 @@ async def on_start_up(bot: Bot, dp: Dispatcher) -> None:
 
 
 async def start_bot() -> None:
-    
-    logging.basicConfig(level=logging.DEBUG)
-
+        
     await async_main()
 
     bot = Bot(token=conf.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN_V2))

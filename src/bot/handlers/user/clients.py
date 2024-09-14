@@ -6,12 +6,16 @@ from bot.keyboards import (
     my_clients_keyboard,
     delete_client_keyboard, confirm_keyboard,
     about_client_keyboard,
+    go_home_keyboard,
+    start_keyboard,
 )
 from bot.misc.messages import (
     my_clients_message, no_clients_message,
     select_client_to_be_deleted_message, confirm_delete_message,
     about_client_message,
     get_conf_message, get_qrcode_message,
+    instruction_message,
+    not_registered_message,
 )
 from bot.utils import conf
 from bot.utils import ClientAction, ClientsCallbackFactory
@@ -19,13 +23,17 @@ from bot.wireguard import wg
 
 
 async def cmd_my_clients(message: types.Message) -> None:
-    clients = await rq.get_clients_by_tg_id(tg_id=message.from_user.id)
-    if clients is None:
-        await message.answer(no_clients_message,
-                             reply_markup=my_clients_keyboard(clients=clients))
+    if await rq.user_is_registered(tg_id=message.from_user.id):
+        clients = await rq.get_clients_by_tg_id(tg_id=message.from_user.id)
+        if clients is None:
+            await message.answer(no_clients_message,
+                                reply_markup=my_clients_keyboard(clients=clients))
+        else:
+            await message.answer(my_clients_message,
+                                reply_markup=my_clients_keyboard(clients=clients))
     else:
-        await message.answer(my_clients_message,
-                             reply_markup=my_clients_keyboard(clients=clients))
+        await message.answer(not_registered_message,
+                             reply_markup=start_keyboard)
 
 
 async def callback_my_clients(callback: types.CallbackQuery) -> None:
@@ -37,6 +45,23 @@ async def callback_my_clients(callback: types.CallbackQuery) -> None:
         await callback.message.edit_text(my_clients_message, 
                                          reply_markup=my_clients_keyboard(clients=clients))
     await callback.answer()
+
+
+async def cmd_instruction(message: types.Message) -> None:
+    if await rq.user_is_registered(tg_id=message.from_user.id):
+        await message.answer(instruction_message,
+                            link_preview_options=types.LinkPreviewOptions(is_disabled=True,
+                                                                        show_above_text=False))
+    else:
+        await message.answer(not_registered_message,
+                             reply_markup=start_keyboard)
+    
+
+async def callback_instruction(callback: types.CallbackQuery) -> None:
+    await callback.message.answer(instruction_message,
+                                  reply_markup=go_home_keyboard,
+                                  link_preview_options=types.LinkPreviewOptions(is_disabled=True,
+                                                                                show_above_text=False))
 
 
 async def callback_create_client(callback: types.CallbackQuery) -> None:

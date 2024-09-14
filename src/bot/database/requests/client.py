@@ -5,6 +5,7 @@ from sqlalchemy import select, update
 from bot.database.models import async_session
 from bot.database.models import User, Client
 from bot.utils import conf, generate_client_name
+from bot.utils import debug
 
 
 async def get_client_by_id(id: int) -> Client:
@@ -66,6 +67,7 @@ async def set_client(tg_id: int,
                 enabled=enabled,
             )
             session.add(client)
+            debug(f'Client {name} added.')
             await session.execute(
                 update(User)
                 .where(User.tg_id == tg_id)
@@ -80,7 +82,8 @@ async def disable_clients_by_tg_id(tg_id: int) -> None:
         if clients:
             for client in clients:
                 client.enabled = False
-                session.add(client)
+                session.add(client)        
+        debug(f'User {tg_id} all devices are disabled.')
         await session.commit()
 
 
@@ -91,6 +94,7 @@ async def enable_clients_by_tg_id(tg_id: int) -> None:
             for client in clients:
                 client.enabled = True
                 session.add(client)
+            debug(f'User {tg_id} all devices are enabled.')
             await session.commit()
 
 
@@ -98,10 +102,12 @@ async def delete_client(id: int) -> None:
     async with async_session() as session:
         client = await get_client_by_id(id=id)
         tg_id = client.tg_id
+        client_name = client.name
         await session.delete(client)
         await session.execute(
             update(User)
             .where(User.tg_id == tg_id)
             .values(count_clients=User.count_clients - 1)
         )
+        debug(f'Client {client_name} deleted.')
         await session.commit()

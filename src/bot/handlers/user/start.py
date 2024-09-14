@@ -13,4 +13,6 @@ async def cmd_start(message: types.Message) -> None:
     else:
         user = await rq.get_user(tg_id=message.from_user.id)
         await message.answer(main_message(user=user),
-                             reply_markup=main_keyboard)
+                             reply_markup=main_keyboard,
+                             link_preview_options=types.LinkPreviewOptions(is_disabled=True,
+                                                                           show_above_text=False))

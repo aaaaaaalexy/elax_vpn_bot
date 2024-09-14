@@ -8,24 +8,30 @@ from bot.misc.messages import (
     failed_payment_message, succeeded_payment_message,
     balance_message,
     payments_history_message,
+    not_registered_message,
 )
 from bot.keyboards import (
     balance_keyboard, payment_keyboard,
     request_contact_keyboard,
     create_payment_keyboard, go_home_keyboard,
+    start_keyboard,
 )
 from bot.payments import create_payment, get_payment_id
 
 
 async def cmd_balance(message: types.Message) -> None:
-    user = await rq.get_user(tg_id=message.from_user.id)
-    await message.answer(balance_message(balance=user.balance),
-                         reply_markup=payment_keyboard(tg_id=message.from_user.id))
+    if await rq.user_is_registered(tg_id=message.from_user.id):
+        user = await rq.get_user(tg_id=message.from_user.id)
+        await message.answer(balance_message(balance=user.balance),
+                            reply_markup=payment_keyboard(tg_id=message.from_user.id))
+    else:
+        await message.answer(not_registered_message,
+                             reply_markup=start_keyboard)
 
 
 async def callback_balance(callback: types.CallbackQuery) -> None:
     user = await rq.get_user(tg_id=callback.from_user.id)
-    await callback.message.edit_text(balance_message(balance=user.balance),
+    await callback.message.answer(balance_message(balance=user.balance),
                                      reply_markup=balance_keyboard(tg_id=callback.from_user.id))
     await callback.answer()
 

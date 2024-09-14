@@ -4,6 +4,7 @@ from bot.database.models import async_session
 from bot.database.models import Payment
 from bot.database.requests.user import get_user, is_enabled, change_balance, sub_payment
 from bot.database.requests.client import enable_clients_by_tg_id
+from bot.utils import debug
 from bot.wireguard import wg
 
 
@@ -51,6 +52,7 @@ async def set_payment(tg_id: int,
             uuid=uuid,
         )
         session.add(payment)
+        debug(f'Payment {uuid} added.')
         await session.commit()
 
 

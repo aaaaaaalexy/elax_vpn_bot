@@ -12,6 +12,7 @@ from bot.misc.messages import (
 )
 from bot.keyboards import payment_keyboard
 from bot.utils import conf
+from bot.utils import debug
 from bot.wireguard import wg
 
 
@@ -39,6 +40,7 @@ async def set_user(tg_id: int,
             count_clients=count_clients,
         )
         session.add(user)
+        debug(f'User {tg_id} added.')
         # if count_clients > 0:
         # ...
         await session.commit()
@@ -61,6 +63,7 @@ async def update_contact(tg_id: int, contact: str) -> None:
         user = await session.scalar(select(User).where(User.tg_id == tg_id))
         user.contact = contact
         session.add(user)
+        debug(f'User {tg_id} updated contact.')
         await session.commit()
 
 
@@ -69,6 +72,7 @@ async def change_balance(tg_id: int, shift: int) -> None:
         user = await get_user(tg_id=tg_id)
         user.balance += shift
         session.add(user)
+        debug(f'User {tg_id} changed balance to {shift}.')
         await session.commit()
 
 
@@ -87,8 +91,10 @@ async def sub_payment(tg_id: int) -> None:
                 deposited=-conf.SUB_PRICE,
             )
             session.add(payment)
+            debug(f'User {tg_id} successfully paid for the sub until {user.time_sub} (balance: {user.balance}).')
         else:
             user.enabled = False
+            debug(f'User {tg_id} is disabled because not enough funds on balance ({user.balance}).')
         session.add(user)
         await session.commit()
 
@@ -116,6 +122,7 @@ async def check_subscriptions(bot: Bot):
                                                reply_markup=payment_keyboard(tg_id=user.tg_id))
                     user.reminder_sent = [True, user.reminder_sent[1]]
                     session.add(user)
+                    debug(f'User {user.tg_id} notified about debiting tomorrow.')
             
             elif not user.reminder_sent[1]:
                 if days_left <= 0:
@@ -134,6 +141,7 @@ async def check_subscriptions(bot: Bot):
                         await bot.send_message(user.tg_id, 
                                                payment_now_good_message(balance=user.balance),
                                                reply_markup=payment_keyboard(tg_id=user.tg_id))
+                        debug(f'User {user.tg_id} notified about debiting funds.')
                     else:
                         user.enabled = False
                         user.reminder_sent = [user.reminder_sent[0], True]
@@ -142,6 +150,7 @@ async def check_subscriptions(bot: Bot):
                         await bot.send_message(user.tg_id, 
                                                payment_now_not_enough_message(balance=user.balance),
                                                reply_markup=payment_keyboard(tg_id=user.tg_id))
+                        debug(f'User {user.tg_id} notified of shutdown.')
                     session.add(user)
         
         await session.commit()

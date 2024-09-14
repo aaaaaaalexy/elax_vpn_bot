@@ -26,6 +26,7 @@ def my_clients_keyboard(clients):
         return get_keyboard([
             *[[Button._client_about(client=client)] for client in clients],
             [Button._create_client, Button._delete_client],
+            [Button._instruction],
             [Button._home],
         ])
     
@@ -41,7 +42,7 @@ confirm_keyboard = lambda callback_data: get_keyboard([
 about_client_keyboard = lambda client: get_keyboard([
     [Button._client_get_conf_file(client=client), Button._client_get_qrcode(client=client)],
     [Button._client_delete(client=client)],
-    [Button._home],
+    [Button._my_clients],
 ])
 
 balance_keyboard = lambda tg_id: get_keyboard([

@@ -5,6 +5,7 @@ import json
 from bot.database.requests.client import get_enabled_clients, get_clients_address
 from bot.database.models import Client
 from bot.utils import conf, exec, generate_qrcode_bytes
+from bot.utils import debug
 
 
 class WireGuard:
@@ -27,7 +28,7 @@ class WireGuard:
             return conf.WG_DEFAULT_ADDRESS.replace('x', '2')
         
         addresses = set(map(lambda x: int(x.split('/')[0].split('.')[-1]), addresses))
-        for i in range(2, 255): # 10.0.0.2/32 -> 10.0.0.254/32
+        for i in range(2, 255):
             if i not in addresses:
                 return conf.WG_DEFAULT_ADDRESS.replace('x', str(i))
         
@@ -35,15 +36,15 @@ class WireGuard:
     
     async def __build_config(self) -> dict:
 
-        print('Loading configuration...')
+        debug('Loading configuration...')
         try:
             async with aiofiles.open(f'{conf.WG_PATH}/server_keys.json', 'r') as f:
                 config = await f.read()
                 config = json.loads(config)
-            print('Configuration loaded.')
+            debug('Configuration loaded.')
 
         except (FileNotFoundError, json.JSONDecodeError):
-            print('Generating new configuration...')
+            debug('Generating new configuration...')
             private_key = await exec('wg genkey')
             public_key = await exec(f'echo {private_key} | wg pubkey')
             address = conf.WG_DEFAULT_ADDRESS.replace('x', '1')
@@ -52,11 +53,11 @@ class WireGuard:
                 'public_key': public_key,
                 'address': address,
             }
-            print('Configuration generated.')
-            print('Saving new configuration...')
+            debug('Configuration generated.')
+            debug('Saving new configuration...')
             async with aiofiles.open(f'{conf.WG_PATH}/server_keys.json', 'w+') as f:
                 await f.write(json.dumps(config, indent=4))
-            print('New configuration saved.')
+            debug('New configuration saved.')
         
         return config
 
@@ -66,8 +67,6 @@ class WireGuard:
         
         config = await self.__config_future
         await self.__save_config(config=config)
-        # await exec('wg-quick down wg0')
-        # await exec('wg-quick up wg0')
         await self.__sync_config()
 
         return config
@@ -76,6 +75,7 @@ class WireGuard:
         config = await self.get_config()
         await self.__save_config(config=config)
         await self.__sync_config()
+        debug('WireGuard config saved.')
 
     async def __save_config(self, config: dict) -> None:
         result = f"""# Server
@@ -132,10 +132,6 @@ PersistentKeepalive = {conf.WG_PERSISTENT_KEEPALIVE}
     async def start(self) -> None:
         await self.get_config()
         await exec('wg-quick up wg0')
-        # await exec('systemctl enable wg-quick@wg0.service')
-        # await exec('systemctl start wg-quick@wg0.service')
 
     async def stop(self) -> None:
         await exec('wg-quick down wg0')
-        # await exec('systemctl stop wg-quick@wg0.service')
-        # await exec('systemctl disable wg-quick@wg0.service')

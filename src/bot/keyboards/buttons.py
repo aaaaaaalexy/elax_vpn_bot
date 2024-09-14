@@ -16,17 +16,18 @@ class Button:
     _help_all = ('🛠️ Команды', 'help_all')
     _my_clients = ('💻 Мои устройства', 'my_clients')
     _balance = ('💵 Управление балансом', 'my_balance')
+    _instruction = ('📕 Инструкция по подключению', 'instruction')
     _create_client = ('📝 Добавить', 'create_client')
     _delete_client = ('🗑️ Удалить', 'delete_client')
     _cancel = ('🚫 Отмена', 'cancel')
     _send_phone_number = '📞 Отправить'
     _client_about = lambda client: (
-        f'🗝️ {client.name}',
+        f'🗝️ Устройство {client.name}',
         ClientsCallbackFactory(client_id=client.id,
                                action=ClientAction.about).pack()
     )
     _client_to_be_deleted = lambda client: (
-        f'🗝️ {client.name}',
+        f'🗝️ Устройство {client.name}',
         ClientsCallbackFactory(client_id=client.id,
                                action=ClientAction.delete).pack()
     )

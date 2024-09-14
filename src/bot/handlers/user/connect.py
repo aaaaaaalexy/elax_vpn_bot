@@ -11,5 +11,8 @@ async def callback_connect_to_db(callback: types.CallbackQuery) -> None:
                       tg_firstname=callback.from_user.first_name,
                       time_sub=get_default_time_sub())
     await callback.answer('Вы успешно подключены к VPN!')
-    await callback.message.edit_text(after_connect_message, reply_markup=after_connect_keyboard)
+    await callback.message.edit_text(after_connect_message,
+                                     reply_markup=after_connect_keyboard,
+                                     link_preview_options=types.LinkPreviewOptions(is_disabled=True,
+                                                                                   show_above_text=False))
     await callback.answer()
