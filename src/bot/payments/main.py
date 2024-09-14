@@ -38,7 +38,7 @@ async def create_payment(order_id: int, phone: str, autopay: bool = False) -> tu
         },
         'confirmation': {
             'type': 'redirect',
-            'return_url': 'https://t.me/elaxvpn_bot',
+            'return_url': 'https://t.me/elax_vpn_bot',
         },
         # 'save_payment_method': autopay,
         # 'payment_method_id': '...',

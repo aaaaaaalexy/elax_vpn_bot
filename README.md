@@ -21,10 +21,10 @@ git clone https://github.com/aaaaaaalexy/elax_vpn_bot.git
 #### 1. Rename .env.example to .env:
 
 ```bash
-mv .env.example .env
+cp .env.example .env
 ```
 
-#### 2. Edit .env :
+#### 2. Edit .env:
 
 For example:
 
@@ -64,7 +64,7 @@ To update to the latest version, simply run:
 ```bash
 cd elax_vpn_bot
 docker compose down --rmi local
-git fetch
+git pull
 
 ```
 
