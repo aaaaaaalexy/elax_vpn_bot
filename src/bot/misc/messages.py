@@ -5,7 +5,7 @@ from bot.utils import plural_days, dict_to_table, conf
 from bot.keyboards.buttons import *
 
 
-hello_message = lambda firstname: f"""Приветствуем, *{firstname}\\!*
+hello_message = lambda firstname: f"""Приветствуем\\!
 
 Подключите VPN бесплатно\\! Бесплатный пробный период на {plural_days(conf.DEFAULT_TIME_SUB)}\\!
 
@@ -35,7 +35,7 @@ _Данной командой нельзя воспользоваться, по
 👇 Нажмите, чтобы зарегистрироваться 👇
 """
 
-main_message = lambda user: f"""Рады видеть Вас, *{user.tg_firstname}\\!*
+main_message = lambda user: f"""Рады видеть Вас снова\\!
 💵 Баланс: *_{user.balance}₽_*
 📅 Осталось: *_{plural_days((user.time_sub - date.today()).days)}_*
 💎 Тариф: *_{conf.SUB_PRICE}₽/мес_*
